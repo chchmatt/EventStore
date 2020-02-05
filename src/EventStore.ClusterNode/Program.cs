@@ -111,7 +111,7 @@ namespace EventStore.ClusterNode {
 			}
 
 			if (opts.EnableHTTPInterface) {
-				Log.Warn("\nDEPRECATION WARNING: Client request via HTTP Interface has been deprecated as of version 6. It is recommended to use the GRPC API.\n");
+				Log.Warn("\nDEPRECATION WARNING: HTTP Interface has been deprecated in version 6. It is recommended to use GRPC instead.\n");
 			}
 
 			if (!opts.MemDb) {
