@@ -41,6 +41,7 @@ namespace EventStore.Core {
 		protected bool _logHttpRequests;
 		protected bool _enableHistograms;
 		protected bool _structuredLog;
+		protected bool _enableHTTPInterface;
 		protected IPEndPoint _internalTcp;
 		protected IPEndPoint _internalSecureTcp;
 		protected IPEndPoint _externalTcp;
@@ -157,6 +158,7 @@ namespace EventStore.Core {
 			_projectionType = ProjectionType.None;
 			_structuredLog = Opts.StructuredLogDefault;
 
+			_enableHTTPInterface = Opts.EnableHTTPInterfaceDefault;
 			_externalTcp = new IPEndPoint(Opts.ExternalIpDefault, Opts.ExternalTcpPortDefault);
 			_externalSecureTcp = null;
 			_internalTcp = new IPEndPoint(Opts.InternalIpDefault, Opts.InternalTcpPortDefault);
@@ -261,6 +263,16 @@ namespace EventStore.Core {
 		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
 		public VNodeBuilder WithStructuredLogging(bool structuredLog) {
 			_structuredLog = structuredLog;
+			return this;
+		}
+		
+		/// <summary>
+		/// Enable HTTP API Interface
+		/// </summary>
+		/// <param name="EnableHTTPInterface">Enable structured logging</param>
+		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+		public VNodeBuilder WithEnableHTTPInterface(bool enableHTTPInterface) {
+			_enableHTTPInterface = enableHTTPInterface;
 			return this;
 		}
 
@@ -1389,7 +1401,8 @@ namespace EventStore.Core {
 				_readOnlyReplica,
 				_maxAppendSize,
 				_createHttpMessageHandler,
-				_unsafeAllowSurplusNodes);
+				_unsafeAllowSurplusNodes,
+				_enableHTTPInterface);
 
 			var infoController = new InfoController(options, _projectionType);
 

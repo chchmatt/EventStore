@@ -110,6 +110,10 @@ namespace EventStore.ClusterNode {
 					"========================================================================================================\n");
 			}
 
+			if (opts.EnableHTTPInterface) {
+				Log.Warn("\nDEPRECATION WARNING: Client request via HTTP Interface has been deprecated as of version 6. It is recommended to use the GRPC API.\n");
+			}
+
 			if (!opts.MemDb) {
 				var absolutePath = Path.GetFullPath(dbPath);
 				if (Runtime.IsWindows)
@@ -284,7 +288,8 @@ namespace EventStore.ClusterNode {
 				.WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
 				.WithInitializationThreads(options.InitializationThreads)
 				.WithMaxAutoMergeIndexLevel(options.MaxAutoMergeIndexLevel)
-				.WithMaxAppendSize(options.MaxAppendSize);
+				.WithMaxAppendSize(options.MaxAppendSize)
+				.WithEnableHTTPInterface(options.EnableHTTPInterface);
 
 			if (options.GossipSeed.Length > 0)
 				builder.WithGossipSeeds(options.GossipSeed);
