@@ -12,6 +12,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
+using EventStore.Core.Services.UserManagement;
 using EventStore.Transport.Tcp;
 using EventStore.Transport.Tcp.Framing;
 using EventStore.Core.Settings;
@@ -69,9 +70,11 @@ namespace EventStore.Core.Services.Transport.Tcp {
 		private readonly IAuthenticationProvider _authProvider;
 		private UserCredentials _defaultUser;
 		private TcpServiceType _serviceType;
+		private TcpSecurityType _securityType;
 
 		public TcpConnectionManager(string connectionName,
 			TcpServiceType serviceType,
+			TcpSecurityType securityType,
 			ITcpDispatcher dispatcher,
 			IPublisher publisher,
 			ITcpConnection openedConnection,
@@ -92,6 +95,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			ConnectionName = connectionName;
 
 			_serviceType = serviceType;
+			_securityType = securityType;
 			_tcpEnvelope = new SendOverTcpEnvelope(this, networkSendQueue);
 			_publisher = publisher;
 			_dispatcher = dispatcher;
@@ -177,6 +181,14 @@ namespace EventStore.Core.Services.Transport.Tcp {
 		private void OnConnectionEstablished(ITcpConnection connection) {
 			Log.Info("Connection '{connectionName}' ({connectionId:B}) to [{remoteEndPoint}] established.",
 				ConnectionName, ConnectionId, connection.RemoteEndPoint);
+
+			if (_serviceType == TcpServiceType.External && _securityType == TcpSecurityType.Secure) {
+				var sslConnection = (TcpConnectionSsl)_connection;
+				if (sslConnection.HasValidClientCertificate) {
+					var user = new UserCredentials(null, null, SystemAccount.Principal);
+					Interlocked.Exchange(ref _defaultUser, user);
+				}
+			}
 
 			ScheduleHeartbeat(0);
 

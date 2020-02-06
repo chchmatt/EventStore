@@ -84,6 +84,10 @@ namespace EventStore.Transport.Tcp {
 			get { return _clientConnectionName; }
 		}
 
+		public bool HasValidClientCertificate {
+			get { return _hasValidClientCertificate; }
+		}
+
 		private readonly Guid _connectionId;
 		private readonly bool _verbose;
 		public string _clientConnectionName;
@@ -110,6 +114,7 @@ namespace EventStore.Transport.Tcp {
 		private int _sendingBytes;
 		private bool _validateServer;
 		private bool _validateClient;
+		private bool _hasValidClientCertificate;
 		private readonly byte[] _receiveBuffer = new byte[TcpConnection.BufferManager.ChunkSize];
 
 		private TcpConnectionSsl(Guid connectionId, IPEndPoint remoteEndPoint, bool verbose) : base(remoteEndPoint) {
@@ -284,6 +289,8 @@ namespace EventStore.Transport.Tcp {
 
 		public bool ValidateClientCertificate(object sender, X509Certificate certificate, X509Chain chain,
 			SslPolicyErrors sslPolicyErrors) {
+			_hasValidClientCertificate = sslPolicyErrors == SslPolicyErrors.None;
+
 			if (!_validateClient)
 				return true;
 
