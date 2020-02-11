@@ -110,8 +110,8 @@ namespace EventStore.ClusterNode {
 					"========================================================================================================\n");
 			}
 
-			if (opts.EnableHTTPInterface) {
-				Log.Warn("\nDEPRECATION WARNING: HTTP Interface has been deprecated in version 6. It is recommended to use GRPC instead.\n");
+			if (opts.EnableAtomPubOverHTTP) {
+				Log.Warn("\nDEPRECATION WARNING: ATOM over HTTP Interface has been deprecated in version 6. It is recommended to use GRPC instead.\n");
 			}
 
 			if (!opts.MemDb) {
@@ -289,7 +289,7 @@ namespace EventStore.ClusterNode {
 				.WithInitializationThreads(options.InitializationThreads)
 				.WithMaxAutoMergeIndexLevel(options.MaxAutoMergeIndexLevel)
 				.WithMaxAppendSize(options.MaxAppendSize)
-				.WithEnableHTTPInterface(options.EnableHTTPInterface);
+				.WithEnableAtomPubOverHTTP(options.EnableAtomPubOverHTTP);
 
 			if (options.GossipSeed.Length > 0)
 				builder.WithGossipSeeds(options.GossipSeed);
