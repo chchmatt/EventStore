@@ -4,6 +4,8 @@ using System.Linq;
 using EventStore.Common.Utils;
 using EventStore.Core.TransactionLog.Chunks;
 using EventStore.Core.Helpers;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EventStore.Core.TransactionLog.LogRecords {
 	[Flags]
@@ -108,7 +110,36 @@ namespace EventStore.Core.TransactionLog.LogRecords {
 			TimeStamp = timeStamp;
 			EventType = eventType ?? string.Empty;
 			Data = data;
-			Metadata = metadata ?? NoData;
+			
+			if (metadata == null)
+			{
+				Metadata = NoData;
+			}
+			else
+			{
+				var json = Encoding.UTF8.GetString(metadata);
+				if (string.IsNullOrWhiteSpace(json)) {
+					Metadata = NoData;
+				} else {
+					const string pattern = @"""createdEpochOverride"":(\d{13})";
+					var match = Regex.Match(json, pattern);
+					if (!match.Success) {
+						Metadata = metadata;
+					} else {
+						// Override timestamp.
+						var createdEpochOverride = long.Parse(match.Groups[1].Value);
+						var dt = new DateTime(1970, 1, 1);
+						dt = dt.AddMilliseconds(createdEpochOverride);
+						TimeStamp = dt;
+
+						// Remove createdEpochOverride from metadata.
+						json = Regex.Replace(json, @"""createdEpochOverride"":\d{13}", string.Empty);
+						json = Regex.Replace(json, @",\}$", "}");
+						Metadata = Encoding.UTF8.GetBytes(json);
+					}
+				}
+			}
+
 			if (InMemorySize > TFConsts.MaxLogRecordSize) throw new Exception("Record too large.");
 		}
 
