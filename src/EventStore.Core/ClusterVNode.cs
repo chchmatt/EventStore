@@ -333,7 +333,7 @@ namespace EventStore.Core {
 
 			{
 				// EXTERNAL TCP
-				if (!vNodeSettings.DisableInsecureTCP) {
+				if (!vNodeSettings.DisableInsecureTCP && vNodeSettings.EnableExternalTCP) {
 					var extTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalTcp, _workersHandler,
 						TcpServiceType.External, TcpSecurityType.Normal, new ClientTcpDispatcher(),
 						vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
@@ -345,7 +345,7 @@ namespace EventStore.Core {
 				}
 
 				// EXTERNAL SECURE TCP
-				if (_nodeInfo.ExternalSecureTcp != null) {
+				if (_nodeInfo.ExternalSecureTcp != null && vNodeSettings.EnableExternalTCP) {
 					var extSecTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
 						TcpServiceType.External, TcpSecurityType.Secure, new ClientTcpDispatcher(),
 						vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
